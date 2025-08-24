@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Safae & Adam</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700;800&family=Caveat:wght@600;700&display=swap');
+
+  /* Reset / Base Styles */
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    background-color: #ffdde8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  img { border: none; outline: none; }
+
+  /* Moving texts with fade edges and horizontal scroll */
+  #moving-text-top,
+  #moving-text-bottom {
+    width: 100%;
+    padding: 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #e91e63;
+    font-weight: 800;
+    font-size: 20px;
+    user-select: none;
+    position: fixed;
+    left: 0;
+    z-index: 1000;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 8%, #000 92%, rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 8%, #000 92%, rgba(0,0,0,0) 100%);
+  }
+  #moving-text-top { top: 0; }
+  #moving-text-bottom { bottom: 0; }
+  #moving-text-top span,
+  #moving-text-bottom span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 15s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Container for profiles */
+  #container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: min(92vw, 980px);
+    gap: clamp(23px, 1vw, 45px);
+    margin: 60px 0 80px;
+    padding: 0 16px;
+  }
+
+  /* Profile styles */
+  .profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 6px;
+    border-radius: 24px;
+    transition: transform .28s ease, filter .28s ease;
+    outline: none;
+  }
+  .profile:focus-visible { box-shadow: 0 0 0 4px rgba(233,30,99,.25); }
+  .profile:hover { transform: translateY(-2px) scale(1.02); filter: saturate(1.06); }
+
+  .profile img {
+    width: clamp(140px, 22vw, 200px);
+    height: clamp(140px, 22vw, 200px);
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow: 0 10px 28px rgba(233, 30, 99, 0.35);
+    transition: box-shadow .35s ease, transform .35s ease;
+  }
+  .profile:hover img { box-shadow: 0 14px 36px rgba(233,30,99,.45); }
+
+  #safae-text, #adam-text {
+    margin-top: 14px;
+    font-size: clamp(22px, 3.5vw, 34px);
+    white-space: nowrap;
+    transition: color .35s ease, transform .25s ease;
+    letter-spacing: .2px;
+  }
+  #safae-text { color: #e91e63; font-weight: 800; }
+  #adam-text  { color: #111; font-weight: 800; }
+  .profile:hover #safae-text { transform: translateY(-1px); }
+  .profile:hover #adam-text  { transform: translateY(-1px); }
+
+  /* Handwritten accent font */
+  .hand { font-family: 'Caveat', cursive; }
+
+  /* Player controls */
+  #player-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  #volume-slider {
+    width: min(70vw, 340px);
+    height: 12px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(90deg, #e91e63 0%, #000 100%);
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    margin: 0;
+    user-select: none;
+    box-shadow: 0 6px 18px rgba(233,30,99,.35);
+  }
+  #volume-slider::-webkit-slider-runnable-track { height: 12px; border-radius: 10px; }
+  #volume-slider::-moz-range-track            { height: 12px; border-radius: 10px; }
+  #volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px; height: 28px;
+    background: url('data:image/svg+xml;utf8,<svg fill="%23e91e63" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center/22px 22px;
+    border: none;
+    border-radius: 50%;
+    margin-top: -8px;
+    cursor: pointer;
+    transition: transform .15s ease-in-out;
+  }
+  #volume-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  #volume-slider::-moz-range-thumb {
+    width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer;
+    background: url('data:image/svg+xml;utf8,<svg fill="%23e91e63" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center/22px 22px;
+    transition: transform .15s ease-in-out;
+  }
+
+  /* Mamacita button styling */
+  #mamacita-btn {
+    padding: 14px 48px;
+    font-size: 24px;
+    font-weight: 800;
+    color: rgb(255, 255, 255);
+    background: linear-gradient(135deg, #e91e63, #000);
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 14px 34px rgba(233,30,99,0.45);
+    transition: transform .25s ease, filter .35s ease, background .35s ease;
+    user-select: none;
+  }
+  #mamacita-btn:hover {
+    transform: translateY(-1px) scale(1.02);
+    filter: brightness(1.05);
+  }
+
+  /* Floating Particle hearts (golden) particles */
+  .particle {
+    position: fixed;
+    width: 24px; height: 24px;
+    pointer-events: none;
+    background-size: contain;
+    animation-timing-function: ease-out;
+    z-index: 999;
+  }
+  /* Golden hearts as particles */
+  .particle.gold {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFD700" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+  }
+  /* Gold particles (small dots or sparkles) */
+  .particle.sparkle {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFD700" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="2"/></svg>');
+    width: 8px; height: 8px;
+  }
+  @keyframes heartFloat {
+    0%   { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-220px) scale(1.7); opacity: 0; }
+  }
+  @keyframes sparkleFade {
+    from { opacity: 1; }
+    to { opacity: 0; transform: scale(2); }
+  }
+
+  /* Modal styles - fixed overlay with fade in/out */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+  }
+  .modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal {
+    background: #fff;
+    color: #222;
+    border-radius: 22px;
+    padding: clamp(18px, 4vw, 28px);
+    width: min(88vw, 520px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    transform: translateY(10px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.28s ease, opacity 0.28s ease;
+  }
+  .modal-backdrop.show .modal {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .modal h2 {
+    margin: 0 0 8px;
+    font-size: clamp(26px, 5vw, 36px);
+    color: #e91e63;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+  }
+  .modal p {
+    margin: 6px 0 14px;
+    font-size: clamp(16px, 3.4vw, 20px);
+    line-height: 1.45;
+    font-family: 'Caveat', cursive;
+  }
+
+  /* Footer */
+  footer {
+    position: fixed;
+    bottom: 13px;
+    top: 3px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 15px;
+    color: #7b4156;
+    opacity: 0.9;
+    pointer-events: none;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+  }
+
+  /* Heart styling (the small floating hearts) */
+  #heart {
+    position: absolute;
+    font-size: 36px;
+    color: #e91e63;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1500;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Love meter container */
+  #love-meter-container {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 15px;
+    z-index: 3000;
+  }
+
+  /* Love meter fill styles */
+  #love-meter {
+    width: 20px;
+    height: 200px;
+    background: linear-gradient(to top, #e7bbcb, rgb(221, 160, 180));
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    position: relative;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+  }
+  #love-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%; /* dynamically updated */
+    background: linear-gradient(135deg, #ff5f7e, #ff3c7b);
+    border-radius: 10px 10px 0 0;
+    transition: height 0.3s ease;
+  }
+
+  /* Increase love button */
+  #increase-love-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    background: linear-gradient(135deg, #c07690, #cf6384);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #increase-love-btn:hover {
+    background: linear-gradient(135deg, #bd8a9c, #d490b5);
+  }
+</style>
+</head>
+<body>
+
+<div id="moving-text-top"><span class="hand">Safae is the most beautiful girl in the world • </span></div>
+<div id="moving-text-bottom"><span class="hand">Safae is the most beautiful girl in the world • </span></div>
+
+<div id="container">
+  <button class="profile" id="safae-profile" aria-label="Open message about Safae">
+    <img src="https://i.pinimg.com/736x/cd/60/00/cd600056a8a65db2a6774aa3f33db77b.jpg" alt="Safae" />
+    <div id="safae-text">Safae &lt;3</div>
+  </button>
+
+  <!-- Controls container (with relative position for flooding effect) -->
+  <div id="player-controls" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+    <input type="range" min="0" max="100" value="50" id="volume-slider" aria-label="Volume slider" />
+    <button id="mamacita-btn" aria-label="Play Mamacita hearts and music">Mamacita</button>
+  </div>
+
+  <button class="profile" id="adam-profile" aria-label="Open message about Adam">
+    <img src="https://i.pinimg.com/736x/ce/d8/30/ced8301d72c21968d92c317c7c87d8e8.jpg" alt="Adam" />
+    <div id="adam-text">Adam &lt;3</div>
+  </button>
+
+  <!-- Small floating hearts for effects -->
+  <div id="heart">❤️</div>
+</div>
+
+<!-- Love meter container -->
+<div id="love-meter-container">
+  <div id="love-meter">
+    <div id="love-fill"></div>
+  </div>
+  <button id="increase-love-btn" aria-label="Add love">Add Love</button>
+  <div id="love-percentage">0%</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h2 id="modal-title" class="hand">For You</h2>
+    <p id="modal-text">...</p>
+  </div>
+</div>
+
+<!-- Audio -->
+<audio id="local-audio" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg" />
+</audio>
+
+<script>
+  const mamacitaBtn = document.getElementById('mamacita-btn');
+  const localAudio = document.getElementById('local-audio');
+  const volumeSlider = document.getElementById('volume-slider');
+
+  const safaeBtn = document.getElementById('safae-profile');
+  const adamBtn = document.getElementById('adam-profile');
+  const modal = document.getElementById('modal');
+  const modalText = document.getElementById('modal-text');
+  const modalTitle = document.getElementById('modal-title');
+
+  const loveFill = document.getElementById('love-fill');
+  const lovePercentageText = document.getElementById('love-percentage');
+
+  const lovePercentMax = 100;
+  let lovePercent = 0;
+
+  const heart = document.getElementById('heart');
+
+  // Initialize volume
+  localAudio.volume = volumeSlider.value / 100;
+  volumeSlider.addEventListener('input', () => {
+    localAudio.volume = volumeSlider.value / 100;
+  });
+
+  // Function to open modal
+  function openModal(text, title='For You') {
+    modalText.textContent = text;
+    modalTitle.textContent = title;
+    modal.classList.add('show');
+  }
+
+  // Profiles click handlers
+  document.getElementById('safae-profile').addEventListener('click', () => {
+    openModal('A beautiful, kind, sexy, caring soul', 'Safae <3');
+  });
+  document.getElementById('adam-profile').addEventListener('click', () => {
+    openModal('Can never get bored of that woman', 'Adam <3');
+  });
+
+  // Close modal on backdrop click or Escape
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) {
+      document.getElementById('modal').classList.remove('show');
+    }
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('modal').classList.remove('show');
+    }
+  });
+
+  // Play music when "Mamacita" button is clicked
+  document.getElementById('mamacita-btn').addEventListener('click', () => {
+    localAudio.play().catch((error) => {
+      alert('Please interact to play the music.');
+      console.error('Audio play error:', error);
+    });
+  });
+
+  // Increase love button
+  document.getElementById('increase-love-btn').addEventListener('click', () => {
+    if (lovePercent < lovePercentMax) {
+      lovePercent += 0.1;
+      if (lovePercent > lovePercentMax) lovePercent = lovePercentMax;
+      updateLoveMeter();
+
+      if (lovePercent === lovePercentMax) {
+        triggerCelebration();
+      }
+    }
+  });
+
+  function updateLoveMeter() {
+    loveFill.style.height = lovePercent + '%';
+    document.getElementById('love-percentage').textContent = lovePercent.toFixed(1) + '%';
+  }
+
+  function triggerCelebration() {
+    const container = document.body;
+    const duration = 5000;
+    const startTime = Date.now();
+
+    const intervalId = setInterval(() => {
+      if (Date.now() - startTime > duration) {
+        clearInterval(intervalId);
+        return;
+      }
+      for (let i=0; i<10; i++) {
+        createGoldHeart(container);
+        createGoldSparkle(container);
+      }
+    }, 200);
+  }
+
+  function createGoldHeart(parent) {
+    const el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = Math.random() * 100 + '%';
+    el.style.fontSize = '24px';
+    el.style.color = '#FFD700';
+    el.innerHTML = '❤️';
+
+    parent.appendChild(el);
+
+    const deltaX = (Math.random() - 0.5) * 200;
+    const deltaY = - (150 + Math.random() * 100);
+
+    const anim = el.animate([
+      { transform: 'translate(0, 0)', opacity: 1 },
+      { transform: `translate(${deltaX}px, ${deltaY}px)`, opacity: 0 }
+    ], {
+      duration: 3000 + Math.random() * 2000,
+      easing: 'ease-out',
+      fill: 'forwards'
+    });
+    anim.onfinish = () => {
+      if (parent.contains(el)) parent.removeChild(el);
+    };
+  }
+
+  function createGoldSparkle(parent) {
+    const el = document.createElement('div');
+    el.style.position = 'absolute';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = Math.random() * 100 + '%';
+    el.style.width = '8px';
+    el.style.height = '8px';
+    el.style.backgroundColor = '#FFD700';
+    el.style.borderRadius = '50%';
+    el.style.opacity = '1';
+
+    parent.appendChild(el);
+
+    const deltaX = (Math.random() - 0.5) * 100;
+    const deltaY = - (100 + Math.random() * 50);
+
+    const anim = el.animate([
+      { transform: 'translate(0, 0)', opacity: 1, transformOrigin: 'center' },
+      { transform: `translate(${deltaX}px, ${deltaY}px) scale(2)`, opacity: 0 }
+    ], {
+      duration: 1500 + Math.random() * 1000,
+      easing: 'ease-out',
+      fill: 'forwards'
+    });
+    anim.onfinish = () => {
+      if (parent.contains(el)) parent.removeChild(el);
+    };
+  }
+
+  // Initialize love meter
+  updateLoveMeter();
+
+</script>
+</body>
+</html>
